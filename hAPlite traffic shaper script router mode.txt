@@ -1,5 +1,5 @@
 # hAP lite RB941-2nd
-# Queue Tree configuration and mangle rules for Transparent Filter Bridge Mode
+# Queue Tree configuration and mangle rules for Router Mode
 # For prioritization of games, Zoom and MS Teams
 # Author: Paul Abib Camano / Aebibtech
 

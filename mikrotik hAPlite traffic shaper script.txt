@@ -1,0 +1,51 @@
+# hAP lite RB941-2nd
+# Queue Tree configuration and mangle rules for Transparent Filter Bridge Mode
+# For prioritization of games, Zoom and MS Teams
+# Author: Paul Abib Camano / Aebibtech
+
+# Variables - Change according to needs.
+# NET_SPEED - Run a speed test to get this value (e.g. speedtest.net)
+# HTTP_LIMIT - The desired rate limit to Web browsing and untagged traffic (e.g. Torrent)
+# TCP_PORTS and UDP_PORTS - ports that are used by games
+# ZOOM_TCP and ZOOM_UDP - ports that are used by Zoom
+# MS_TEAMS - ports that are used by MS Teams
+
+:local NET_SPEED 25M
+:local HTTP_LIMIT 20M
+:local TCP_PORTS 30097-30147,2099,5222-5223
+:local UDP_PORTS 27000-27014,27031-27100,5000-5500,6672,61455-61458
+:local ZOOM_TCP 8801,8802,5090,5091
+:local ZOOM_UDP 3478,3479,8801-8810,5090,5091
+:local MS_TEAMS 3478-3481
+
+/queue tree
+:local n
+:for n from 1 to 4 do={
+	add name="e$n" limit-at="$NET_SPEED" max-limit="$NET_SPEED" parent="ether$n" queue="default"
+	add name="untagged$n" limit-at="$HTTP_LIMIT" max-limit="$HTTP_LIMIT"  packet-mark="no-mark" parent="e$n" queue="default"
+	add name="games$n" packet-mark="games" parent="e$n" priority="3" queue="default"
+	add name="ack$n" packet-mark="ack" parent="e$n" priority="2" queue="default"
+}
+
+:local name wifi
+add name="$name" limit-at="$NET_SPEED" max-limit="$NET_SPEED" parent="wlan1" queue="default"
+add limit-at="$HTTP_LIMIT" max-limit="$HTTP_LIMIT" name="untagged$name" packet-mark="no-mark,http" parent="$name" queue="default"
+add name="games$name" packet-mark="games" parent="$name" priority="3" queue="default"
+add name="ack$name" packet-mark="ack" parent="$name" priority="2" queue="default"
+
+/ip firewall mangle
+# MARK PACKETS
+add action="mark-packet" chain="postrouting" new-packet-mark="ack" packet-size="40" passthrough="no" protocol="tcp" tcp-flags="ack" comment="MARK PACKET TCP ACK"
+add action="mark-packet" chain="postrouting" dst-port="53" new-packet-mark="ack" passthrough="no" protocol="udp" comment="MARK PACKET DNS"
+add action="mark-packet" chain="postrouting" connection-mark="games-conn" new-packet-mark="games" passthrough="no" comment="MARK PACKET GAMES"
+
+# MARK GAME CONNECTIONS
+add action="mark-connection" chain="postrouting" connection-state="new" dst-port="$TCP_PORTS" new-connection-mark="games-conn" protocol="tcp" comment="MARK CONNECTION GAMES TCP"
+add action="mark-connection" chain="postrouting" connection-state="new" dst-port="$UDP_PORTS" new-connection-mark="games-conn" protocol="udp" comment="MARK CONNECTION GAMES UDP"
+
+# MARK ZOOM CONNECTIONS
+# add action="mark-connection" chain="postrouting" connection-state="new" dst-address-list="zoom_ip" dst-port="$ZOOM_TCP" new-connection-mark="games-conn" protocol="tcp" comment="MARK CONNECTION ZOOM TCP"
+# add action="mark-connection" chain="postrouting" connection-state="new" dst-address-list="zoom_ip" dst-port="$ZOOM_UDP" new-connection-mark="games-conn" protocol="udp" comment="MARK CONNECTION ZOOM UDP"
+
+# MARK MS TEAMS CONNECTIONS
+# add action="mark-connection" chain="postrouting" connection-state="new" dst-address-list="ms_teams" dst-port="$MS_TEAMS" new-connection-mark="games-conn" protocol="udp" comment="MARK CONNECTION ZOOM UDP"

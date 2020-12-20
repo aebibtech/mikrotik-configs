@@ -1,0 +1,19 @@
+# Update limit-at and max-limit of untagged queues
+# For hAP lite TC RB941-2nd Bridged Mode
+# Use this in conjunction to the queue creation 
+# and mangle rules creation script.
+# Author: Paul Abib Camano / Aebibtech
+
+/queue tree
+# Change according to your needs.
+# Internet source is plugged to ether1.
+# This is the port that has the label "Internet."
+:local UPSPEED "40M"
+:local DOWNSPEED "25M"
+
+set "untagged1" limit-at="$UPSPEED" max-limit="$UPSPEED"
+:local n
+:for n from 2 to 4 do={
+	set "untagged$n" limit-at="$DOWNSPEED" max-limit="$DOWNSPEED"
+}
+set "untaggedwifi" limit-at="$DOWNSPEED" max-limit="$DOWNSPEED"

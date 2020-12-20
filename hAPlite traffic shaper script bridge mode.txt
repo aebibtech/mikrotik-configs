@@ -2,7 +2,7 @@
 # Queue Tree configuration and mangle rules for Transparent Filter Bridge Mode
 # For prioritization of games, Zoom and MS Teams
 # I created this script because my ISP does not allow their combo modems to be set to bridge mode.
-# I just set my hAP lite to bridge mode instead
+# I just set my hAP lite to be a bridge instead
 # in order to prevent a double NAT configuration.
 # Author: Paul Abib Camano / Aebibtech
 

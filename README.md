@@ -1,7 +1,7 @@
 # mikrotik-configs
 A collection of my adventures using Mikrotik devices.
 
-Instructions for script usage:
+## Instructions for script usage:
 1. Go to System -> Scripts
 2. Click the + button.
 3. Put a name for the script.

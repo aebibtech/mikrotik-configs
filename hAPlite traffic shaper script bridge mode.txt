@@ -7,14 +7,14 @@
 # Author: Paul Abib Camano / Aebibtech
 
 # Variables - Change according to needs.
-# NETSPEED - Run a speed test to get this value (e.g. speedtest.net)
-# HTTPLIMIT - The desired rate limit to Web browsing and untagged traffic (e.g. Torrent)
+# UPLOAD - Run a speed test to get this value (e.g. speedtest.net)
+# DOWNLOAD - The desired rate limit to Web browsing and untagged traffic (e.g. Torrent)
 # TCPPORTS and UDPPORTS - ports that are used by games
 # ZOOMTCP and ZOOMUDP - ports that are used by Zoom
 # MSTEAMS - ports that are used by MS Teams
 
-:local NETSPEED "25M"
-:local HTTPLIMIT "20M"
+:local UPLOAD "25M"
+:local DOWNLOAD "20M"
 :local TCPPORTS "30097-30147,2099,5222-5223"
 :local UDPPORTS "27000-27014,27031-27100,5000-5500,6672,61455-61458"
 :local ZOOMTCP "8801,8802,5090,5091"
@@ -22,17 +22,21 @@
 :local MSTEAMS "3478-3481"
 
 /queue tree
+add name="e1" parent="ether1" queue="default"
+add name="untagged1" limit-at="$UPLOAD" max-limit="$UPLOAD"  packet-mark="no-mark" parent="e1" queue="default"
+add name="games1" packet-mark="games" parent="e1" priority="3" queue="default"
+add name="ack1" packet-mark="ack" parent="e1" priority="2" queue="default"
 :local n
-:for n from 1 to 4 do={
-	add name="e$n" limit-at="$NETSPEED" max-limit="$NETSPEED" parent="ether$n" queue="default"
-	add name="untagged$n" limit-at="$HTTPLIMIT" max-limit="$HTTPLIMIT"  packet-mark="no-mark" parent="e$n" queue="default"
+:for n from 2 to 4 do={
+	add name="e$n" parent="ether$n" queue="default"
+	add name="untagged$n" limit-at="$DOWNLOAD" max-limit="$DOWNLOAD"  packet-mark="no-mark" parent="e$n" queue="default"
 	add name="games$n" packet-mark="games" parent="e$n" priority="3" queue="default"
 	add name="ack$n" packet-mark="ack" parent="e$n" priority="2" queue="default"
 }
 
 :local name wifi
-add name="$name" limit-at="$NETSPEED" max-limit="$NETSPEED" parent="wlan1" queue="default"
-add limit-at="$HTTPLIMIT" max-limit="$HTTPLIMIT" name="untagged$name" packet-mark="no-mark,http" parent="$name" queue="default"
+add name="$name" parent="wlan1" queue="default"
+add limit-at="$DOWNLOAD" max-limit="$DOWNLOAD" name="untagged$name" packet-mark="no-mark,http" parent="$name" queue="default"
 add name="games$name" packet-mark="games" parent="$name" priority="3" queue="default"
 add name="ack$name" packet-mark="ack" parent="$name" priority="2" queue="default"
 

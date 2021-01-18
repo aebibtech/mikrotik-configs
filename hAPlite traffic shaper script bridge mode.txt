@@ -41,7 +41,7 @@ add name="ack$name" packet-mark="ack" parent="$name" priority="2" queue="default
 add action="mark-packet" chain="postrouting" new-packet-mark="ack" packet-size="40" passthrough="no" protocol="tcp" tcp-flags="ack" comment="MARK PACKET TCP ACK"
 add action="mark-packet" chain="postrouting" dst-port="53" new-packet-mark="ack" passthrough="no" protocol="udp" comment="MARK PACKET DNS"
 add action="mark-packet" chain="postrouting" connection-mark="games-conn" new-packet-mark="games" passthrough="no" comment="MARK PACKET GAMES"
-add action="mark-packet" chain="postrouting" new-packet-mark="games" passthrough="no" comment="MARK PACKET PING"
+add action="mark-packet" chain="postrouting" new-packet-mark="games" passthrough="no" protocol="icmp" comment="MARK PACKET PING"
 
 # MARK GAME CONNECTIONS
 add action="mark-connection" chain="postrouting" connection-state="new" dst-port="$TCPPORTS" new-connection-mark="games-conn" protocol="tcp" comment="MARK CONNECTION GAMES TCP"
